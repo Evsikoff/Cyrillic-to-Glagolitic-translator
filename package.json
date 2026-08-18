@@ -1,0 +1,22 @@
+{
+  "name": "cyrillic-to-glagolitic-translator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test",
+    "check": "npm run test && npm run build"
+  },
+  "dependencies": {
+    "@vkontakte/vk-bridge": "^3.0.2"
+  },
+  "devDependencies": {
+    "vite": "^7.3.6"
+  }
+}
