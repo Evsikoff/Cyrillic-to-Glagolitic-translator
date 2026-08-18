@@ -1,205 +1,565 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-device="desktop" data-orientation="portrait">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Кириллица → Глаголица</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f4f7f6">
+    <title>Кириллица ↔ Глаголица</title>
     <style>
         :root {
-            --primary: #4A90E2;
-            --bg: #F4F7F6;
-            --surface: #FFFFFF;
-            --text: #333333;
-            --border: #E0E0E0;
+            color-scheme: light;
+            --primary: #3579c9;
+            --primary-dark: #245d9f;
+            --primary-soft: #eaf3fd;
+            --bg: #f4f7f6;
+            --surface: #ffffff;
+            --text: #262b31;
+            --muted: #68717c;
+            --border: #dce2e7;
+            --success: #217a4a;
+            --shadow: 0 10px 32px rgba(35, 54, 73, 0.09);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            background: var(--bg);
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            min-width: 280px;
+            min-height: 100vh;
+            min-height: 100dvh;
             margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
+            padding: clamp(16px, 3vw, 36px);
+            padding-top: max(clamp(16px, 3vw, 36px), env(safe-area-inset-top));
+            padding-right: max(clamp(16px, 3vw, 36px), env(safe-area-inset-right));
+            padding-bottom: max(clamp(16px, 3vw, 36px), env(safe-area-inset-bottom));
+            padding-left: max(clamp(16px, 3vw, 36px), env(safe-area-inset-left));
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 24px;
-            align-items: start;
+        button,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .page-shell {
+            width: min(100%, 1100px);
+            margin: 0 auto;
         }
 
         .translator-app {
+            padding: clamp(18px, 3vw, 30px);
+            overflow: hidden;
             background: var(--surface);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid rgba(220, 226, 231, 0.8);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .app-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .heading-copy {
+            min-width: 0;
         }
 
         h1 {
-            margin-top: 0;
-            font-size: 24px;
+            margin: 0;
             color: var(--primary);
+            font-size: clamp(24px, 3vw, 32px);
+            line-height: 1.2;
+        }
+
+        .description {
+            max-width: 720px;
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .direction-button,
+        .copy-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 650;
+            transition: background-color 0.18s, border-color 0.18s, color 0.18s, transform 0.18s;
+        }
+
+        .direction-button {
+            flex: 0 0 auto;
+            gap: 9px;
+            padding: 10px 14px;
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        .direction-button:hover {
+            background: var(--primary-dark);
+        }
+
+        .direction-button:active,
+        .copy-button:active {
+            transform: translateY(1px);
+        }
+
+        .direction-icon {
+            font-size: 22px;
+            line-height: 1;
         }
 
         .translation-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: clamp(14px, 2vw, 24px);
         }
 
         .input-group {
             display: flex;
+            min-width: 0;
             flex-direction: column;
         }
 
-        label {
-            font-weight: 600;
+        .field-heading {
+            display: flex;
+            min-height: 44px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
             margin-bottom: 8px;
+        }
+
+        label {
+            color: var(--muted);
             font-size: 14px;
-            color: #666;
+            font-weight: 650;
+        }
+
+        .copy-button {
+            min-height: 36px;
+            padding: 7px 11px;
+            border-color: var(--border);
+            background: var(--surface);
+            color: var(--primary-dark);
+            font-size: 13px;
+        }
+
+        .copy-button:hover:not(:disabled) {
+            border-color: #aac8e9;
+            background: var(--primary-soft);
+        }
+
+        .copy-button.is-copied {
+            border-color: #acd5bd;
+            background: #eef9f2;
+            color: var(--success);
+        }
+
+        .copy-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
         }
 
         textarea {
             width: 100%;
-            height: 200px;
-            padding: 12px;
+            height: clamp(210px, 30vh, 330px);
+            min-height: 160px;
+            padding: 14px;
             border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 16px;
-            resize: none;
-            box-sizing: border-box;
-            transition: border-color 0.2s;
+            border-radius: 10px;
+            background: #ffffff;
+            color: var(--text);
+            font-size: 17px;
+            line-height: 1.5;
+            resize: vertical;
+            transition: border-color 0.18s, box-shadow 0.18s;
         }
 
         textarea:focus {
-            outline: none;
             border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(53, 121, 201, 0.14);
         }
 
         #output {
-            background-color: #FAFAFA;
-            /* Увеличенный шрифт для глаголицы */
-            font-size: 22px; 
+            background: #fafcfd;
+            font-size: 22px;
         }
 
-        /* Баннерное место 3:2 */
-        .banner-slot {
-            background-color: #E8E8E8;
-            border: 2px dashed #BDBDBD;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #757575;
-            text-align: center;
-            padding: 20px;
-            /* Жесткая фиксация соотношения сторон 3:2 */
+        .banner {
+            width: min(100%, 900px);
+            margin: clamp(18px, 3vw, 28px) auto 0;
+        }
+
+        .banner-link {
+            display: block;
+            overflow: hidden;
             aspect-ratio: 3 / 2;
+            border-radius: 16px;
+            background: #e6e9ec;
+            box-shadow: var(--shadow);
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+
+        .banner-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 38px rgba(35, 54, 73, 0.14);
+        }
+
+        .banner-link:focus-visible,
+        .direction-button:focus-visible,
+        .copy-button:focus-visible {
+            outline: 3px solid rgba(53, 121, 201, 0.4);
+            outline-offset: 3px;
+        }
+
+        .banner-image {
+            display: block;
             width: 100%;
-            box-sizing: border-box;
+            height: 100%;
+            object-fit: cover;
         }
 
-        .banner-slot span {
-            font-size: 18px;
-            font-weight: bold;
-        }
-        
-        .banner-slot small {
-            margin-top: 8px;
-            font-size: 12px;
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
 
-        /* Адаптивность для мобильных устройств */
-        @media (max-width: 800px) {
-            .container {
-                grid-template-columns: 1fr;
+        /* Узкий портретный экран смартфона: поля идут друг под другом. */
+        @media (max-width: 700px) and (orientation: portrait) {
+            body {
+                padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
             }
+
+            .translator-app {
+                padding: 18px 14px;
+                border-radius: 14px;
+            }
+
+            .app-header {
+                flex-direction: column;
+                margin-bottom: 16px;
+            }
+
+            .direction-button {
+                width: 100%;
+            }
+
             .translation-grid {
                 grid-template-columns: 1fr;
+                gap: 14px;
             }
-            .banner-slot {
-                max-width: 450px;
-                margin: 0 auto;
+
+            .field-heading {
+                min-height: 38px;
+            }
+
+            textarea {
+                height: clamp(170px, 27vh, 250px);
+                min-height: 150px;
+                resize: vertical;
+            }
+
+            .banner-link {
+                border-radius: 14px;
+            }
+        }
+
+        /* Смартфон в альбомной ориентации: оба поля остаются рядом и экономят высоту. */
+        @media (orientation: landscape) and (max-height: 600px),
+               (orientation: landscape) and (max-width: 950px) {
+            body {
+                padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+            }
+
+            .translator-app {
+                padding: 14px;
+                border-radius: 12px;
+            }
+
+            .app-header {
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .description {
+                margin-top: 4px;
+                font-size: 12px;
+            }
+
+            .direction-button {
+                min-height: 40px;
+                padding: 8px 12px;
+            }
+
+            .translation-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
+            }
+
+            .field-heading {
+                min-height: 36px;
+                margin-bottom: 5px;
+            }
+
+            textarea {
+                height: clamp(130px, 38vh, 220px);
+                min-height: 120px;
+                padding: 10px;
+                resize: none;
+            }
+
+            .banner {
+                width: min(78%, 720px);
+                margin-top: 14px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
             }
         }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <!-- Блок переводчика -->
+    <div class="page-shell">
         <main class="translator-app">
-            <h1>Переводчик на Глаголицу</h1>
-            <p style="font-size: 14px; color: #666; margin-bottom: 20px;">
-                Детерминированный алгоритм. Буквы Ё и Э заменяются на Е, Й на И.
-            </p>
-            
+            <header class="app-header">
+                <div class="heading-copy">
+                    <h1>Кириллица ↔ Глаголица</h1>
+                    <p class="description">
+                        Перевод выполняется сразу при вводе. При обратном переводе неоднозначные буквы восстанавливаются как Е и И.
+                    </p>
+                </div>
+
+                <button id="swap-direction" class="direction-button" type="button" aria-label="Переключить направление перевода">
+                    <span class="direction-icon" aria-hidden="true">⇄</span>
+                    <span>Сменить направление</span>
+                </button>
+            </header>
+
             <div class="translation-grid">
-                <div class="input-group">
-                    <label for="input">Русский (Кириллица)</label>
-                    <textarea id="input" placeholder="Введите текст здесь..."></textarea>
-                </div>
-                
-                <div class="input-group">
-                    <label for="output">Старославянский (Глаголица)</label>
-                    <textarea id="output" readonly placeholder="Ⱃⰵⰸⱆⰾⱐⱅⰰⱅ..."></textarea>
-                </div>
+                <section class="input-group" aria-labelledby="input-label">
+                    <div class="field-heading">
+                        <label id="input-label" for="input">Русский (Кириллица)</label>
+                    </div>
+                    <textarea id="input" placeholder="Введите текст здесь…" autocomplete="off" autocapitalize="sentences" spellcheck="true"></textarea>
+                </section>
+
+                <section class="input-group" aria-labelledby="output-label">
+                    <div class="field-heading">
+                        <label id="output-label" for="output">Глаголица</label>
+                        <button id="copy-output" class="copy-button" type="button" disabled>Копировать</button>
+                    </div>
+                    <textarea id="output" readonly placeholder="Ⱃⰵⰸⱆⰾⱐⱅⰰⱅ…" aria-live="polite"></textarea>
+                </section>
             </div>
         </main>
 
-        <!-- Блок для рекламного баннера -->
-        <aside class="banner-slot">
-            <span>Рекламный баннер</span>
-            <small>Соотношение 3:2<br>(например, 300x200px)</small>
+        <aside class="banner" aria-label="Рекламный баннер">
+            <a class="banner-link" href="https://vk.ru/market/product/nastolnaya-igra-quotadmiral-taktika-risk-i-sudbaquot-kompaktnaya-versia-227786453-8922274" target="_blank" rel="noopener noreferrer" aria-label="Открыть страницу настольной игры «Адмирал»">
+                <img class="banner-image" src="banner.jpg" alt="Настольная игра «Адмирал: тактика, риск и судьба»" width="1536" height="1024">
+            </a>
         </aside>
     </div>
 
+    <div id="copy-status" class="sr-only" role="status" aria-live="polite"></div>
+
     <script>
-        // Детерминированный словарь подстановок
-        const glagoliticMap = {
-            // Заглавные
-            'А': 'Ⰰ', 'Б': 'Ⰱ', 'В': 'Ⰲ', 'Г': 'Ⰳ', 'Д': 'Ⰴ', 
-            'Е': 'Ⰵ', 'Ё': 'Ⰵ', 'Ж': 'Ⰶ', 'З': 'Ⰸ', 'И': 'Ⰹ', 
-            'Й': 'Ⰹ', 'К': 'Ⰽ', 'Л': 'Ⰾ', 'М': 'Ⰿ', 'Н': 'Ⱀ', 
-            'О': 'Ⱁ', 'П': 'Ⱂ', 'Р': 'Ⱃ', 'С': 'Ⱄ', 'Т': 'Ⱅ', 
-            'У': 'Ⱆ', 'Ф': 'Ⱇ', 'Х': 'Ⱈ', 'Ц': 'Ⱌ', 'Ч': 'Ⱍ', 
-            'Ш': 'Ⱎ', 'Щ': 'Ⱋ', 'Ъ': 'Ⱏ', 'Ы': 'ⰟⰉ', 'Ь': 'Ⱐ', 
+        const cyrillicToGlagoliticMap = {
+            'А': 'Ⰰ', 'Б': 'Ⰱ', 'В': 'Ⰲ', 'Г': 'Ⰳ', 'Д': 'Ⰴ',
+            'Е': 'Ⰵ', 'Ё': 'Ⰵ', 'Ж': 'Ⰶ', 'З': 'Ⰸ', 'И': 'Ⰹ',
+            'Й': 'Ⰹ', 'К': 'Ⰽ', 'Л': 'Ⰾ', 'М': 'Ⰿ', 'Н': 'Ⱀ',
+            'О': 'Ⱁ', 'П': 'Ⱂ', 'Р': 'Ⱃ', 'С': 'Ⱄ', 'Т': 'Ⱅ',
+            'У': 'Ⱆ', 'Ф': 'Ⱇ', 'Х': 'Ⱈ', 'Ц': 'Ⱌ', 'Ч': 'Ⱍ',
+            'Ш': 'Ⱎ', 'Щ': 'Ⱋ', 'Ъ': 'Ⱏ', 'Ы': 'ⰟⰉ', 'Ь': 'Ⱐ',
             'Э': 'Ⰵ', 'Ю': 'Ⱓ', 'Я': 'Ⱔ',
-            
-            // Строчные
-            'а': 'ⰰ', 'б': 'ⰱ', 'в': 'ⰲ', 'г': 'ⰳ', 'д': 'ⰴ', 
-            'е': 'ⰵ', 'ё': 'ⰵ', 'ж': 'ⰶ', 'з': 'ⰸ', 'и': 'ⰹ', 
-            'й': 'ⰹ', 'к': 'ⰽ', 'л': 'ⰾ', 'м': 'ⰿ', 'н': 'ⱀ', 
-            'о': 'ⱁ', 'п': 'ⱂ', 'р': 'ⱃ', 'с': 'ⱄ', 'т': 'ⱅ', 
-            'у': 'ⱆ', 'ф': 'ⱇ', 'х': 'ⱈ', 'ц': 'ⱌ', 'ч': 'ⱍ', 
-            'ш': 'ⱎ', 'щ': 'ⱋ', 'ъ': 'ⱏ', 'ы': 'ⱏⰹ', 'ь': 'ⱐ', 
+            'а': 'ⰰ', 'б': 'ⰱ', 'в': 'ⰲ', 'г': 'ⰳ', 'д': 'ⰴ',
+            'е': 'ⰵ', 'ё': 'ⰵ', 'ж': 'ⰶ', 'з': 'ⰸ', 'и': 'ⰹ',
+            'й': 'ⰹ', 'к': 'ⰽ', 'л': 'ⰾ', 'м': 'ⰿ', 'н': 'ⱀ',
+            'о': 'ⱁ', 'п': 'ⱂ', 'р': 'ⱃ', 'с': 'ⱄ', 'т': 'ⱅ',
+            'у': 'ⱆ', 'ф': 'ⱇ', 'х': 'ⱈ', 'ц': 'ⱌ', 'ч': 'ⱍ',
+            'ш': 'ⱎ', 'щ': 'ⱋ', 'ъ': 'ⱏ', 'ы': 'ⱏⰹ', 'ь': 'ⱐ',
             'э': 'ⰵ', 'ю': 'ⱓ', 'я': 'ⱔ'
         };
 
+        // Длинные сочетания идут первыми, чтобы Ы не распадалась на Ъ + И.
+        const glagoliticToCyrillicMap = {
+            'ⰟⰉ': 'Ы', 'ⱏⰹ': 'ы',
+            'Ⰰ': 'А', 'Ⰱ': 'Б', 'Ⰲ': 'В', 'Ⰳ': 'Г', 'Ⰴ': 'Д',
+            'Ⰵ': 'Е', 'Ⰶ': 'Ж', 'Ⰸ': 'З', 'Ⰹ': 'И', 'Ⰽ': 'К',
+            'Ⰾ': 'Л', 'Ⰿ': 'М', 'Ⱀ': 'Н', 'Ⱁ': 'О', 'Ⱂ': 'П',
+            'Ⱃ': 'Р', 'Ⱄ': 'С', 'Ⱅ': 'Т', 'Ⱆ': 'У', 'Ⱇ': 'Ф',
+            'Ⱈ': 'Х', 'Ⱌ': 'Ц', 'Ⱍ': 'Ч', 'Ⱎ': 'Ш', 'Ⱋ': 'Щ',
+            'Ⱏ': 'Ъ', 'Ⱐ': 'Ь', 'Ⱓ': 'Ю', 'Ⱔ': 'Я',
+            'ⰰ': 'а', 'ⰱ': 'б', 'ⰲ': 'в', 'ⰳ': 'г', 'ⰴ': 'д',
+            'ⰵ': 'е', 'ⰶ': 'ж', 'ⰸ': 'з', 'ⰹ': 'и', 'ⰽ': 'к',
+            'ⰾ': 'л', 'ⰿ': 'м', 'ⱀ': 'н', 'ⱁ': 'о', 'ⱂ': 'п',
+            'ⱃ': 'р', 'ⱄ': 'с', 'ⱅ': 'т', 'ⱆ': 'у', 'ⱇ': 'ф',
+            'ⱈ': 'х', 'ⱌ': 'ц', 'ⱍ': 'ч', 'ⱎ': 'ш', 'ⱋ': 'щ',
+            'ⱏ': 'ъ', 'ⱐ': 'ь', 'ⱓ': 'ю', 'ⱔ': 'я'
+        };
+
+        const reverseTokens = Object.keys(glagoliticToCyrillicMap).sort((left, right) => right.length - left.length);
         const inputField = document.getElementById('input');
         const outputField = document.getElementById('output');
+        const inputLabel = document.getElementById('input-label');
+        const outputLabel = document.getElementById('output-label');
+        const swapButton = document.getElementById('swap-direction');
+        const copyButton = document.getElementById('copy-output');
+        const copyStatus = document.getElementById('copy-status');
+        let direction = 'to-glagolitic';
+        let copyFeedbackTimer;
 
-        // Функция перевода
         function translateToGlagolitic(text) {
+            return Array.from(text, (character) => cyrillicToGlagoliticMap[character] || character).join('');
+        }
+
+        function translateToCyrillic(text) {
             let result = '';
-            for (let i = 0; i < text.length; i++) {
-                const char = text[i];
-                // Если символ есть в словаре - меняем, иначе оставляем как есть (пробелы, знаки препинания)
-                result += glagoliticMap[char] || char;
+            let position = 0;
+
+            while (position < text.length) {
+                const token = reverseTokens.find((candidate) => text.startsWith(candidate, position));
+
+                if (token) {
+                    result += glagoliticToCyrillicMap[token];
+                    position += token.length;
+                } else {
+                    const codePoint = String.fromCodePoint(text.codePointAt(position));
+                    result += codePoint;
+                    position += codePoint.length;
+                }
             }
+
             return result;
         }
 
-        // Слушатель событий для перевода в реальном времени
-        inputField.addEventListener('input', (e) => {
-            const translatedText = translateToGlagolitic(e.target.value);
-            outputField.value = translatedText;
-        });
+        function updateTranslation() {
+            outputField.value = direction === 'to-glagolitic'
+                ? translateToGlagolitic(inputField.value)
+                : translateToCyrillic(inputField.value);
+            copyButton.disabled = outputField.value.length === 0;
+        }
+
+        function updateDirectionInterface() {
+            const toGlagolitic = direction === 'to-glagolitic';
+            inputLabel.textContent = toGlagolitic ? 'Русский (Кириллица)' : 'Глаголица';
+            outputLabel.textContent = toGlagolitic ? 'Глаголица' : 'Русский (Кириллица)';
+            inputField.placeholder = toGlagolitic ? 'Введите текст здесь…' : 'Введите текст глаголицей…';
+            outputField.placeholder = toGlagolitic ? 'Ⱃⰵⰸⱆⰾⱐⱅⰰⱅ…' : 'Результат…';
+            inputField.spellcheck = toGlagolitic;
+            swapButton.setAttribute('aria-label', toGlagolitic
+                ? 'Переключить на перевод с глаголицы на кириллицу'
+                : 'Переключить на перевод с кириллицы на глаголицу');
+        }
+
+        function switchDirection() {
+            const previousTranslation = outputField.value;
+            direction = direction === 'to-glagolitic' ? 'to-cyrillic' : 'to-glagolitic';
+            inputField.value = previousTranslation;
+            updateDirectionInterface();
+            updateTranslation();
+            inputField.focus();
+        }
+
+        function fallbackCopy(text) {
+            const selectionStart = outputField.selectionStart;
+            const selectionEnd = outputField.selectionEnd;
+            outputField.focus();
+            outputField.select();
+            const copied = document.execCommand('copy');
+            outputField.setSelectionRange(selectionStart, selectionEnd);
+            inputField.focus({ preventScroll: true });
+
+            if (!copied) {
+                throw new Error('Copy command was rejected');
+            }
+        }
+
+        async function copyTranslation() {
+            const text = outputField.value;
+            if (!text) return;
+
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                } else {
+                    fallbackCopy(text);
+                }
+
+                clearTimeout(copyFeedbackTimer);
+                copyButton.textContent = 'Скопировано';
+                copyButton.classList.add('is-copied');
+                copyStatus.textContent = 'Перевод скопирован в буфер обмена';
+                copyFeedbackTimer = setTimeout(() => {
+                    copyButton.textContent = 'Копировать';
+                    copyButton.classList.remove('is-copied');
+                }, 1800);
+            } catch (error) {
+                copyStatus.textContent = 'Не удалось скопировать перевод';
+                outputField.focus();
+                outputField.select();
+            }
+        }
+
+        function detectSmartphone() {
+            const userAgentReportsMobile = typeof navigator.userAgentData?.mobile === 'boolean'
+                ? navigator.userAgentData.mobile
+                : /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const compactTouchScreen = window.matchMedia('(pointer: coarse)').matches
+                && Math.min(window.screen.width, window.screen.height) <= 900;
+            const isSmartphone = userAgentReportsMobile || compactTouchScreen;
+            const orientation = window.matchMedia('(orientation: landscape)').matches ? 'landscape' : 'portrait';
+
+            document.documentElement.classList.toggle('is-smartphone', isSmartphone);
+            document.documentElement.dataset.device = isSmartphone ? 'smartphone' : 'desktop';
+            document.documentElement.dataset.orientation = orientation;
+        }
+
+        inputField.addEventListener('input', updateTranslation);
+        swapButton.addEventListener('click', switchDirection);
+        copyButton.addEventListener('click', copyTranslation);
+        window.addEventListener('resize', detectSmartphone, { passive: true });
+        window.addEventListener('orientationchange', detectSmartphone, { passive: true });
+
+        detectSmartphone();
+        updateDirectionInterface();
+        updateTranslation();
     </script>
 </body>
 </html>
