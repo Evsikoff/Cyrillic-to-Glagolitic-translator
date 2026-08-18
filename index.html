@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кириллица → Глаголица</title>
+    <style>
+        :root {
+            --primary: #4A90E2;
+            --bg: #F4F7F6;
+            --surface: #FFFFFF;
+            --text: #333333;
+            --border: #E0E0E0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .translator-app {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 24px;
+            color: var(--primary);
+        }
+
+        .translation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            resize: none;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        #output {
+            background-color: #FAFAFA;
+            /* Увеличенный шрифт для глаголицы */
+            font-size: 22px; 
+        }
+
+        /* Баннерное место 3:2 */
+        .banner-slot {
+            background-color: #E8E8E8;
+            border: 2px dashed #BDBDBD;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #757575;
+            text-align: center;
+            padding: 20px;
+            /* Жесткая фиксация соотношения сторон 3:2 */
+            aspect-ratio: 3 / 2;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .banner-slot span {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .banner-slot small {
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 800px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .translation-grid {
+                grid-template-columns: 1fr;
+            }
+            .banner-slot {
+                max-width: 450px;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Блок переводчика -->
+        <main class="translator-app">
+            <h1>Переводчик на Глаголицу</h1>
+            <p style="font-size: 14px; color: #666; margin-bottom: 20px;">
+                Детерминированный алгоритм. Буквы Ё и Э заменяются на Е, Й на И.
+            </p>
+            
+            <div class="translation-grid">
+                <div class="input-group">
+                    <label for="input">Русский (Кириллица)</label>
+                    <textarea id="input" placeholder="Введите текст здесь..."></textarea>
+                </div>
+                
+                <div class="input-group">
+                    <label for="output">Старославянский (Глаголица)</label>
+                    <textarea id="output" readonly placeholder="Ⱃⰵⰸⱆⰾⱐⱅⰰⱅ..."></textarea>
+                </div>
+            </div>
+        </main>
+
+        <!-- Блок для рекламного баннера -->
+        <aside class="banner-slot">
+            <span>Рекламный баннер</span>
+            <small>Соотношение 3:2<br>(например, 300x200px)</small>
+        </aside>
+    </div>
+
+    <script>
+        // Детерминированный словарь подстановок
+        const glagoliticMap = {
+            // Заглавные
+            'А': 'Ⰰ', 'Б': 'Ⰱ', 'В': 'Ⰲ', 'Г': 'Ⰳ', 'Д': 'Ⰴ', 
+            'Е': 'Ⰵ', 'Ё': 'Ⰵ', 'Ж': 'Ⰶ', 'З': 'Ⰸ', 'И': 'Ⰹ', 
+            'Й': 'Ⰹ', 'К': 'Ⰽ', 'Л': 'Ⰾ', 'М': 'Ⰿ', 'Н': 'Ⱀ', 
+            'О': 'Ⱁ', 'П': 'Ⱂ', 'Р': 'Ⱃ', 'С': 'Ⱄ', 'Т': 'Ⱅ', 
+            'У': 'Ⱆ', 'Ф': 'Ⱇ', 'Х': 'Ⱈ', 'Ц': 'Ⱌ', 'Ч': 'Ⱍ', 
+            'Ш': 'Ⱎ', 'Щ': 'Ⱋ', 'Ъ': 'Ⱏ', 'Ы': 'ⰟⰉ', 'Ь': 'Ⱐ', 
+            'Э': 'Ⰵ', 'Ю': 'Ⱓ', 'Я': 'Ⱔ',
+            
+            // Строчные
+            'а': 'ⰰ', 'б': 'ⰱ', 'в': 'ⰲ', 'г': 'ⰳ', 'д': 'ⰴ', 
+            'е': 'ⰵ', 'ё': 'ⰵ', 'ж': 'ⰶ', 'з': 'ⰸ', 'и': 'ⰹ', 
+            'й': 'ⰹ', 'к': 'ⰽ', 'л': 'ⰾ', 'м': 'ⰿ', 'н': 'ⱀ', 
+            'о': 'ⱁ', 'п': 'ⱂ', 'р': 'ⱃ', 'с': 'ⱄ', 'т': 'ⱅ', 
+            'у': 'ⱆ', 'ф': 'ⱇ', 'х': 'ⱈ', 'ц': 'ⱌ', 'ч': 'ⱍ', 
+            'ш': 'ⱎ', 'щ': 'ⱋ', 'ъ': 'ⱏ', 'ы': 'ⱏⰹ', 'ь': 'ⱐ', 
+            'э': 'ⰵ', 'ю': 'ⱓ', 'я': 'ⱔ'
+        };
+
+        const inputField = document.getElementById('input');
+        const outputField = document.getElementById('output');
+
+        // Функция перевода
+        function translateToGlagolitic(text) {
+            let result = '';
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                // Если символ есть в словаре - меняем, иначе оставляем как есть (пробелы, знаки препинания)
+                result += glagoliticMap[char] || char;
+            }
+            return result;
+        }
+
+        // Слушатель событий для перевода в реальном времени
+        inputField.addEventListener('input', (e) => {
+            const translatedText = translateToGlagolitic(e.target.value);
+            outputField.value = translatedText;
+        });
+    </script>
+</body>
+</html>
